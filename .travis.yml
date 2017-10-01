@@ -1,0 +1,27 @@
+sudo: required
+
+env:
+  global:
+  - secure: ID+8X4vKsFAhbVsJQ3mdZFqgntocDOEAPEVcZ7wjh+HzX96JZo25dx0XFDu1+QDNVDupn/nrDg+1aAeUh09wdqZg1Po83aH0OqZpFKSt7weY54D3u81HduJUlM2qkGh/RorexsmHW7DYLVfnpu1DsZ/Xs21CvWEDIjQ/uYsYI850++j+vNYsMbEj42Hju92dQJd30LmPXFsF79ex7gOraogQ3/PltYDLKDacQ6VOXIGDBMEMOoBC8MRlZuk+xRfLwvwjyiYCoHsLkGQQlGNI5Zy6n1ZyxX88Pyq0oUVa72CM+5frTq+Gpp/WsSxVJWduTXnmcUjIAvcCn0sMmDwGKRpILOOaAqKZuLJe4Vjqyk7xfMEd904OGJeC8HoRjoL60CGj1rjJxQSuLOKpFN/VZ3wdkyzyur8V3DnmxLMUoEs4AM7n1maJGE71t8B8hXK1/EMA1HYhqJnrAKIvBh5UZtRZgGb6j57yyZDBPN+dP1f2gTRpYXMzZAarC/ZvaJrVrE2e8ZT0yxZ84P9QZEv8WFtQb0L/G7xjxkb9SwxEvBjTTetXoNjmZ/emZpErCcR0emqHZUJWF8RB9aUbXgJNYXFkkCYRJmOn+/GxRFoSLGlhq+MzmKMrw6FTk+6vtNUdguV9MRItfvixP43BmRfxODteuee9i1j95BwXO2Ur4ew=
+  - secure: ND0XRKPYTEwW8PqOpIIZhjZPUSXm1jN3whSZ1WC27depKQ8+W8B+EALJyuL8kIt6yKSEcbDpVX9rNHH+ti6jd7Y6jUCZfJuO6NAjj08BKP7TxyJ7SMaU4OFVpPHxjhzL4/jnSyg6ELAIV3yLgQw5zhDU/Rb+ciL7bKyxlEIMverlYY1LIgkq/vNHRBsbyTWC1s/T/e9mn3NveeMOhNAghUlhPskfZmqUuxEC3/hhjYt+eOOpGCmzsUhnzIxJ7Hw2oDI1/qdQ29TXN2rUBXifjMtxWJjHy1BADtUm+hVFGad8of/J2xBBXIZ/JxBRWMwqQLP7NRzxD1sP4gLGx5kPTlOhT3Uao6jk+k64/u0HuPvVAlprSvd523K2o/fJlst5dXAt14I1ytQWybaercUzHWXH3T/syHA1nHYWMsoGVaanaxQMBSRnL7IZ4iRif5loYUV8a85JwpKJFCQyiOL0l77xvNKXFHymYIbnndF8VutTJjJsp7U/cH06sjiQlXnQ2XIRUf0N1bD78WLhG/eciwrx8Ts4kloPQjT+fgIvPbbnLgaPh/MC9tLU+f6l5POVJFITemIGQiEAW0s2282p7ppBfuku8DXbfBchVDUxOpO883aNirZMMdIPYLYRlKH/QEQ555CMsxA2M8us+/oHLGgUIIttBaihrXcbACN23iY=
+  - secure: kR3KKJ/rmNzYzLnY7HqwqlhyYam8amHOLBQFEjqhPo69QeFtQ7+gOS/IiEv/yijOWuUCIhVE1GjOPTN0xDn8SMASNV43Z+RRByMbfYeRCnDb8FgJWHVIFewkElUtoWHP3Bkw9PD8RQZ3NZpYqUwf+zZ3dvIZACrcb4193gQCqnsb+PSfuGihZgF1wegiD3i/DKHHaJGmOxVNyruLLba2Cd35Rq0mdXyxlEweg36sNFBPC4SUqgkZML0QC6+8ugzUMxfI4YKCvAwxSlZWvsDecJXOZHb5lLfTNtmkpcM0yC/G46McYOA1QT1WR4eQq+OE4jQkpVsz9WEX7EvdXq9rlqGUDVcuJ76btVC9r3sd+537OGc05MpDz9/teNUegr7E6HqHL0hgUQTRZBXREefHbFOiELxWlk/r2mpORl8valbZXwX/8YO/7h/m4Cm5HrI7i9ie/zejoy00UeHYTEkfIq41DMk/RdukiORwedanoFkD6qKL6r9VhgtS04y0RRtw/GvPtL0oB0swA70G5mN5VnFhCdY9DWq4igybZYcYcX2oWP3IiTpeSA2TmbZbgASyySkAbeuysOYskBHQ84OZW/hjFxpy2I+Oqtgns9xBI1fDqe7qmrpWci+QA6G22o9PaPvPTpA0i4cI2ERIKKHLg/C4J/PXPxA2v8kuARv3SuI=
+  - REPO=depost/init-aws-swarm
+  - COMMIT=${TRAVIS_COMMIT::8}
+
+services:
+- docker
+
+before_script:
+- export TZ=Pacific/Auckland
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
+
+branches:
+  only:
+  - master
+
+script:
+- docker build -t init-aws-swarm -t $REPO:$COMMIT -t $REPO:$TRAVIS_BUILD_NUMBER -t $REPO:$TAG -f Dockerfile .
+
+after_success:
+- docker login -u $DOCKER_USER -p $DOCKER_PASS
+- docker push $REPO
