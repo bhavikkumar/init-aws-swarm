@@ -97,15 +97,17 @@ function setup_manager {
       export MANAGER_TOKEN=$(docker swarm join-token manager | grep token | awk '{ print $2 }')
       export WORKER_TOKEN=$(docker swarm join-token worker | grep token | awk '{ print $2 }')
 
-      aws dynamodb put-item \
-          --table-name $DYNAMODB_TABLE \
-          --region $REGION \
-          --item '{"id":{"S": "manager_join_token"},"value": {"S":"'"$MANAGER_TOKEN"'"}}'
+      if [ -n "$MANAGER_TOKEN"] && [ -n "$WORKER_TOKEN"]; then
+        aws dynamodb put-item \
+            --table-name $DYNAMODB_TABLE \
+            --region $REGION \
+            --item '{"id":{"S": "manager_join_token"},"value": {"S":"'"$MANAGER_TOKEN"'"}}'
 
-      aws dynamodb put-item \
-          --table-name $DYNAMODB_TABLE \
-          --region $REGION \
-          --item '{"id":{"S": "worker_join_token"},"value": {"S":"'"$WORKER_TOKEN"'"}}'
+        aws dynamodb put-item \
+            --table-name $DYNAMODB_TABLE \
+            --region $REGION \
+            --item '{"id":{"S": "worker_join_token"},"value": {"S":"'"$WORKER_TOKEN"'"}}'
+      fi
     else
       echo "Another node became primary manager before us, lets join as a secondary manager"
       join_as_secondary_manager
