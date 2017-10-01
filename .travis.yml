@@ -23,7 +23,5 @@ script:
 - docker build -t init-aws-swarm -t $REPO:$COMMIT -t $REPO:$TRAVIS_BUILD_NUMBER -t $REPO:$TAG -f Dockerfile .
 
 after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    docker login -u $DOCKER_USER -p $DOCKER_PASS
-    docker push USER/REPO;
-    fi
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS
+  - docker push $REPO
