@@ -42,7 +42,7 @@ get_worker_token()
 create_node_id_tag()
 {
   get_node_id
-  aws ec2 create-tags --resource $INSTANCE_ID --tags Key=node-id,Value=$NODE_ID
+  aws ec2 create-tags --resource $INSTANCE_ID --tags Key=node-id,Value=$NODE_ID --region $REGION
 }
 
 function join_as_secondary_manager {
