@@ -4,7 +4,7 @@
 export PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 export INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 export REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)
-export NODE_TYPE=$(aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=swarm-node-type" --region us-west-2 --output=json | jq -r .Tags[0].Value)
+export NODE_TYPE=$(aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=swarm-node-type" --region $REGION --output=json | jq -r .Tags[0].Value)
 
 echo "DYNAMODB_TABLE=$DYNAMODB_TABLE"
 
