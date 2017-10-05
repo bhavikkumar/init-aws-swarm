@@ -39,6 +39,12 @@ get_worker_token()
   export WORKER_TOKEN=$(aws dynamodb get-item --region $REGION --table-name $DYNAMODB_TABLE --key '{"id":{"S": "worker_join_token"}}' | jq -r '.Item.value.S')
 }
 
+create_node_id_tag()
+{
+  get_node_id
+  aws ec2 create-tag --resource $INSTANCE_ID --tags Key=node-id,Value=$NODE_ID
+}
+
 function join_as_secondary_manager {
  # We are not the primary manager, so join as secondary manager.
  n=0
@@ -142,3 +148,6 @@ if [ -z "$NODE_ID" ] || [ -z "$SWARM_ID" ]; then
   echo "Failed to create or join the swarm cluster"
   exit 1
 fi
+
+# Add the node id as the tag
+create_node_id_tag
