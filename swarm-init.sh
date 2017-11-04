@@ -100,8 +100,8 @@ function setup_manager {
       docker swarm init --listen-addr $PRIVATE_IP:2377 --advertise-addr $PRIVATE_IP:2377
 
       # Get the join tokens and add them to dynamodb
-      export MANAGER_TOKEN=$(docker swarm join-token manager | grep token | awk '{ print $2 }')
-      export WORKER_TOKEN=$(docker swarm join-token worker | grep token | awk '{ print $2 }')
+      export MANAGER_TOKEN=$(docker swarm join-token manager | grep token | awk '{ print $5 }')
+      export WORKER_TOKEN=$(docker swarm join-token worker | grep token | awk '{ print $5 }')
 
       aws dynamodb put-item \
           --table-name $DYNAMODB_TABLE \
