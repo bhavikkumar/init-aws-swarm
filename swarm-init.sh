@@ -127,6 +127,39 @@ function setup_manager {
   fi
 }
 
+function setup_worker {
+  # We are a worker, so we join the cluster as one
+  n=0
+  until [ $n -gt 5 ]
+  do
+      docker swarm join --token $WORKER_TOKEN --listen-addr $PRIVATE_IP:2377 --advertise-addr $PRIVATE_IP:2377 $MANAGER_IP:2377
+      get_swarm_id
+
+      # check if we have a SWARM_ID, if so, we were able to join, if not, it failed.
+      if [ -z "$SWARM_ID" ]; then
+          echo "Can't connect to primary manager, sleep and try again"
+          sleep 60
+          n=$[$n+1]
+
+          # if we are pending, we might have hit the primary when it was shutting down.
+          # we should leave the swarm, and try again, after getting the new primary ip.
+          SWARM_STATE=$(docker info | grep Swarm | cut -f2 -d: | sed -e 's/^[ \t]*//')
+          echo "SWARM_STATE=$SWARM_STATE"
+          if [ "$SWARM_STATE" == "pending" ] ; then
+              echo "Swarm state is pending, something happened, lets reset, and try again."
+              docker swarm leave --force
+              sleep 30
+          fi
+          # query dynamodb again, incase the manager changed
+          get_primary_manager_ip
+          get_worker_token
+      else
+          echo "Connected to primary manager, SWARM_ID=$SWARM_ID"
+          break
+      fi
+  done
+}
+
 # Check if the primary manager ip exists
 get_primary_manager_ip
 
@@ -137,8 +170,8 @@ if [ "$NODE_TYPE" == "manager" ] ; then
     setup_manager
 else
     echo "Worker node, running worker setup"
-    # get_worker_token
-    # setup_node
+    get_worker_token
+    setup_worker
 fi
 
 get_swarm_id
