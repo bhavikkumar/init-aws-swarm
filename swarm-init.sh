@@ -177,7 +177,7 @@ fi
 get_swarm_id
 get_node_id
 
-if [ -z "$NODE_ID" ] || [ -z "$SWARM_ID" ]; then
+if [ -z "$NODE_ID" ] && [ -z "$SWARM_ID" ]; then
   echo "Failed to create or join the swarm cluster"
   exit 1
 fi
