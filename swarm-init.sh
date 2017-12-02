@@ -133,10 +133,10 @@ function setup_worker {
   until [ $n -gt 5 ]
   do
       docker swarm join --token $WORKER_TOKEN --listen-addr $PRIVATE_IP:2377 --advertise-addr $PRIVATE_IP:2377 $MANAGER_IP:2377
-      get_swarm_id
+      get_node_id
 
-      # check if we have a SWARM_ID, if so, we were able to join, if not, it failed.
-      if [ -z "$SWARM_ID" ]; then
+      # check if we have a NODE_ID, if so, we were able to join, if not, it failed.
+      if [ -z "$NODE_ID" ]; then
           echo "Can't connect to primary manager, sleep and try again"
           sleep 60
           n=$[$n+1]
@@ -154,7 +154,7 @@ function setup_worker {
           get_primary_manager_ip
           get_worker_token
       else
-          echo "Connected to primary manager, SWARM_ID=$SWARM_ID"
+          echo "Connected to primary manager, NODE_ID=$NODE_ID"
           break
       fi
   done
